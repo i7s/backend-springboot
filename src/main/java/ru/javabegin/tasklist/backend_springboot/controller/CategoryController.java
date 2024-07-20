@@ -1,18 +1,19 @@
 package ru.javabegin.tasklist.backend_springboot.controller;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.javabegin.tasklist.backend_springboot.entity.Category;
-import ru.javabegin.tasklist.backend_springboot.entity.Priority;
 import ru.javabegin.tasklist.backend_springboot.repo.CategoryRepository;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 // We use @RestController instead of the regular @Controller so that all responses are automatically wrapped in JSON
 // Otherwise, we would have to do extra work, use @ResponseBody for the response, and specify the JSON response type
 @RestController
-@RequestMapping("/category") // базовый адрес
+@RequestMapping("/category") // base address
 public class CategoryController {
 
     // access data from the db
@@ -24,10 +25,9 @@ public class CategoryController {
         this.categoryRepository = categoryRepository;
     }
 
-    @GetMapping("/test")
-    public List<Category> test() {
-        List<Category> list = categoryRepository.findAll();
-        return list; // The JSON format will be used automatically
+    @GetMapping("/all")
+    public List<Category> findAll() {
+        return categoryRepository.findAllByOrderByTitleAsc();
     }
 
     @PostMapping("/add")
@@ -55,6 +55,33 @@ public class CategoryController {
             return new ResponseEntity("missed param: title", HttpStatus.NOT_ACCEPTABLE);
         }
         return ResponseEntity.ok(categoryRepository.save(category));
+    }
+
+    @GetMapping("/id/{id}")
+    public ResponseEntity<Category> findById(@PathVariable Long id) {
+        Category category = null;
+
+        try {
+            category = categoryRepository.findById(id).get();
+        } catch (NoSuchElementException e) {
+            e.printStackTrace();
+            return new ResponseEntity("id:" + id + " not found", HttpStatus.NOT_ACCEPTABLE);
+        }
+
+        return ResponseEntity.ok(category);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity deleteById(@PathVariable Long id) {
+
+        try {
+            categoryRepository.deleteById(id);
+        } catch (EmptyResultDataAccessException e) {
+            e.printStackTrace();
+            return new ResponseEntity("id:" + id + " not found", HttpStatus.NOT_ACCEPTABLE);
+        }
+
+        return ResponseEntity.ok(HttpStatus.OK);
     }
 
 }
