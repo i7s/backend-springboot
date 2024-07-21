@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.javabegin.tasklist.backend_springboot.entity.Category;
 import ru.javabegin.tasklist.backend_springboot.repo.CategoryRepository;
+import ru.javabegin.tasklist.backend_springboot.search.CategorySearchValues;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -83,5 +84,13 @@ public class CategoryController {
 
         return ResponseEntity.ok(HttpStatus.OK);
     }
+
+    // search by any parameters in CategorySearchValues
+    @PostMapping("/search")
+    public ResponseEntity<List<Category>> search(@RequestBody CategorySearchValues categorySearchValues) {
+        // if the text is empty or null, all categories will be returned
+        return ResponseEntity.ok(categoryRepository.findByTitle(categorySearchValues.getText()));
+    }
+
 
 }
