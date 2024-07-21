@@ -149,7 +149,7 @@ public class TaskController {
         Sort sort = Sort.by(direction, sortColumn);
 
         //paging object
-        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize);
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, sort);
         Page result = taskRepository.findByParams(text, completed, priorityId, categoryId, pageRequest);
 
         return ResponseEntity.ok(result);
