@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.javabegin.tasklist.backend_springboot.entity.Priority;
 import ru.javabegin.tasklist.backend_springboot.repo.PriorityRepository;
 import ru.javabegin.tasklist.backend_springboot.search.PrioritySearchValues;
+import ru.javabegin.tasklist.backend_springboot.util.MyLogger;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -23,11 +24,14 @@ public class PriorityController {
 
     @GetMapping("/all")
     public List<Priority> findAll() {
+        MyLogger.showMethodName("PriorityController: findAll()");
+
         return priorityRepository.findAllByOrderByIdAsc();
     }
 
     @PostMapping("/add")
     public ResponseEntity<Priority> add(@RequestBody Priority priority) {
+        MyLogger.showMethodName("PriorityController: add()");
 
         // checking for mandatory parameters
         if (priority.getId() != null && priority.getId() != 0) {
@@ -51,6 +55,8 @@ public class PriorityController {
 
     @PutMapping("/update")
     public ResponseEntity update(@RequestBody Priority priority) {
+        MyLogger.showMethodName("PriorityController: update()");
+
         // check for required parameters
         if (priority.getId() == null || priority.getId() == 0) {
             return new ResponseEntity("missed param: id", HttpStatus.NOT_ACCEPTABLE);
@@ -72,6 +78,7 @@ public class PriorityController {
 
     @GetMapping("/id/{id}")
     public ResponseEntity<Priority> findById(@PathVariable Long id) {
+        MyLogger.showMethodName("PriorityController: findById()");
         Priority priority = null;
 
         try {
@@ -86,6 +93,7 @@ public class PriorityController {
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity deleteById(@PathVariable Long id) {
+        MyLogger.showMethodName("PriorityController: deleteById()");
 
         try {
             priorityRepository.deleteById(id);
@@ -99,6 +107,7 @@ public class PriorityController {
 
     @PostMapping("/search")
     public ResponseEntity<List<Priority>> search(@RequestBody PrioritySearchValues prioritySearchValues) {
+        MyLogger.showMethodName("PriorityController: search()");
         // if the text is empty or null, all categories will be returned
         return ResponseEntity.ok(priorityRepository.findByTitle(prioritySearchValues.getText()));
     }

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.javabegin.tasklist.backend_springboot.entity.Category;
 import ru.javabegin.tasklist.backend_springboot.repo.CategoryRepository;
 import ru.javabegin.tasklist.backend_springboot.search.CategorySearchValues;
+import ru.javabegin.tasklist.backend_springboot.util.MyLogger;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -28,11 +29,15 @@ public class CategoryController {
 
     @GetMapping("/all")
     public List<Category> findAll() {
+        MyLogger.showMethodName("CategoryController: findAll()");
+
         return categoryRepository.findAllByOrderByTitleAsc();
     }
 
     @PostMapping("/add")
     public ResponseEntity<Category> add(@RequestBody Category category) {
+        MyLogger.showMethodName("CategoryController: add()");
+
         // checking for mandatory parameters
         if (category.getId() != null && category.getId() != 0) {
             // The id is automatically generated in the database (autoincrement), so it should not be created, otherwise, there may be a conflict with the unique value.
@@ -49,6 +54,8 @@ public class CategoryController {
 
     @PutMapping("/update")
     public ResponseEntity update(@RequestBody Category category) {
+        MyLogger.showMethodName("CategoryController: update()");
+
         if (category.getId() == null && category.getId() == 0) {
             return new ResponseEntity("missed param: id", HttpStatus.NOT_ACCEPTABLE);
         }
@@ -60,6 +67,7 @@ public class CategoryController {
 
     @GetMapping("/id/{id}")
     public ResponseEntity<Category> findById(@PathVariable Long id) {
+        MyLogger.showMethodName("CategoryController: findById()");
         Category category = null;
 
         try {
@@ -75,6 +83,8 @@ public class CategoryController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity deleteById(@PathVariable Long id) {
 
+        MyLogger.showMethodName("CategoryController: deleteById()");
+
         try {
             categoryRepository.deleteById(id);
         } catch (EmptyResultDataAccessException e) {
@@ -88,6 +98,8 @@ public class CategoryController {
     // search by any parameters in CategorySearchValues
     @PostMapping("/search")
     public ResponseEntity<List<Category>> search(@RequestBody CategorySearchValues categorySearchValues) {
+        MyLogger.showMethodName("CategoryController: search()");
+
         // if the text is empty or null, all categories will be returned
         return ResponseEntity.ok(categoryRepository.findByTitle(categorySearchValues.getText()));
     }
