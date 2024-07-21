@@ -18,8 +18,8 @@ public class Task {
     private String title;
     private Integer completed;
     private Date date;
-    private Priority priorityId;
-    private Category categoryId;
+    private Priority priority;
+    private Category category;
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -48,14 +48,14 @@ public class Task {
 
     @ManyToOne
     @JoinColumn(name = "priority_id", referencedColumnName = "id")
-    public Priority getPriorityId() {
-        return priorityId;
+    public Priority getPriority() {
+        return priority;
     }
 
     @ManyToOne
     @JoinColumn(name = "category_id", referencedColumnName = "id")
-    public Category getCategoryId() {
-        return categoryId;
+    public Category getCategory() {
+        return category;
     }
 
 }
