@@ -1,6 +1,5 @@
 package ru.javabegin.tasklist.backend_springboot.controller;
 
-import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -9,8 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.javabegin.tasklist.backend_springboot.entity.Task;
-import ru.javabegin.tasklist.backend_springboot.repo.TaskRepository;
 import ru.javabegin.tasklist.backend_springboot.search.TaskSearchValues;
+import ru.javabegin.tasklist.backend_springboot.service.TaskService;
 import ru.javabegin.tasklist.backend_springboot.util.MyLogger;
 
 import java.util.List;
@@ -24,13 +23,13 @@ import java.util.NoSuchElementException;
 @RequestMapping("/task") // base URL
 public class TaskController {
 
-    private final TaskRepository taskRepository; // service for accessing data (do not interact directly with repositories)
+    private final TaskService taskService; // service for accessing data (do not interact directly with repositories)
 
 
     // automatic injection of class instance through the constructor
     // do not use @Autowired for class variable, as "Field injection is not recommended"
-    public TaskController(TaskRepository taskRepository, ConfigurableEnvironment environment) {
-        this.taskRepository = taskRepository;
+    public TaskController(TaskService taskService) {
+        this.taskService = taskService;
     }
 
 
@@ -40,7 +39,7 @@ public class TaskController {
 
         MyLogger.showMethodName("Task: findAll()");
 
-        return ResponseEntity.ok(taskRepository.findAll());
+        return ResponseEntity.ok(taskService.findAll());
     }
 
     // adding
@@ -60,7 +59,7 @@ public class TaskController {
             return new ResponseEntity("missed param: title", HttpStatus.NOT_ACCEPTABLE);
         }
 
-        return ResponseEntity.ok(taskRepository.save(task)); // возвращаем созданный объект со сгенерированным id
+        return ResponseEntity.ok(taskService.add(task)); // return the created object with the generated id
 
     }
 
@@ -82,9 +81,9 @@ public class TaskController {
         }
 
         // save works for both adding and updating
-        taskRepository.save(task);
+        taskService.update(task);
 
-        return new ResponseEntity(HttpStatus.OK); // просто отправляем статус 200 (операция прошла успешно)
+        return new ResponseEntity(HttpStatus.OK); // just send status 200 (operation was successful)
 
     }
 
@@ -96,7 +95,7 @@ public class TaskController {
         MyLogger.showMethodName("task: delete()");
 
         try {
-            taskRepository.deleteById(id);
+            taskService.deleteById(id);
         } catch (EmptyResultDataAccessException e) {
             e.printStackTrace();
             return new ResponseEntity("id=" + id + " not found", HttpStatus.NOT_ACCEPTABLE);
@@ -114,7 +113,7 @@ public class TaskController {
         Task task = null;
 
         try {
-            task = taskRepository.findById(id).get();
+            task = taskService.findById(id);
         } catch (NoSuchElementException e) {
             e.printStackTrace();
             return new ResponseEntity("id=" + id + " not found", HttpStatus.NOT_ACCEPTABLE);
@@ -150,7 +149,7 @@ public class TaskController {
 
         //paging object
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, sort);
-        Page result = taskRepository.findByParams(text, completed, priorityId, categoryId, pageRequest);
+        Page result = taskService.findByParams(text, completed, priorityId, categoryId, pageRequest);
 
         return ResponseEntity.ok(result);
 

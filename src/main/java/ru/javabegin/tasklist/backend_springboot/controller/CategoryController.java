@@ -5,8 +5,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.javabegin.tasklist.backend_springboot.entity.Category;
-import ru.javabegin.tasklist.backend_springboot.repo.CategoryRepository;
 import ru.javabegin.tasklist.backend_springboot.search.CategorySearchValues;
+import ru.javabegin.tasklist.backend_springboot.service.CategoryService;
 import ru.javabegin.tasklist.backend_springboot.util.MyLogger;
 
 import java.util.List;
@@ -19,19 +19,19 @@ import java.util.NoSuchElementException;
 public class CategoryController {
 
     // access data from the db
-    private CategoryRepository categoryRepository;
+    private CategoryService categoryService;
 
     // automatic injection of a class instance through the constructor
     // do not use @Autowired for class variables because "Field injection is not recommended"
-    public CategoryController(CategoryRepository categoryRepository) {
-        this.categoryRepository = categoryRepository;
+    public CategoryController(CategoryService categoryService) {
+        this.categoryService = categoryService;
     }
 
     @GetMapping("/all")
     public List<Category> findAll() {
         MyLogger.showMethodName("CategoryController: findAll()");
 
-        return categoryRepository.findAllByOrderByTitleAsc();
+        return categoryService.findAllByOrderByTitleAsc();
     }
 
     @PostMapping("/add")
@@ -49,7 +49,7 @@ public class CategoryController {
             return new ResponseEntity("missed param: title", HttpStatus.NOT_ACCEPTABLE);
         }
 
-        return ResponseEntity.ok(categoryRepository.save(category));
+        return ResponseEntity.ok(categoryService.add(category));
     }
 
     @PutMapping("/update")
@@ -62,7 +62,8 @@ public class CategoryController {
         if (category.getTitle() == null && category.getTitle().trim().length() == 0) {
             return new ResponseEntity("missed param: title", HttpStatus.NOT_ACCEPTABLE);
         }
-        return ResponseEntity.ok(categoryRepository.save(category));
+        categoryService.update(category);
+        return ResponseEntity.ok(HttpStatus.OK);
     }
 
     @GetMapping("/id/{id}")
@@ -71,7 +72,7 @@ public class CategoryController {
         Category category = null;
 
         try {
-            category = categoryRepository.findById(id).get();
+            category = categoryService.findById(id);
         } catch (NoSuchElementException e) {
             e.printStackTrace();
             return new ResponseEntity("id:" + id + " not found", HttpStatus.NOT_ACCEPTABLE);
@@ -86,7 +87,7 @@ public class CategoryController {
         MyLogger.showMethodName("CategoryController: deleteById()");
 
         try {
-            categoryRepository.deleteById(id);
+            categoryService.deleteById(id);
         } catch (EmptyResultDataAccessException e) {
             e.printStackTrace();
             return new ResponseEntity("id:" + id + " not found", HttpStatus.NOT_ACCEPTABLE);
@@ -101,7 +102,7 @@ public class CategoryController {
         MyLogger.showMethodName("CategoryController: search()");
 
         // if the text is empty or null, all categories will be returned
-        return ResponseEntity.ok(categoryRepository.findByTitle(categorySearchValues.getText()));
+        return ResponseEntity.ok(categoryService.findByTitle(categorySearchValues.getText()));
     }
 
 
